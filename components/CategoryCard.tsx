@@ -1,6 +1,22 @@
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  UserCheck,
+  FileText,
+  Wallet,
+  BarChart3,
+  HelpCircle,
+  Building2,
+} from "lucide-react";
 import type { Category } from "@/data/categories";
+
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  UserCheck,
+  FileText,
+  Wallet,
+  BarChart3,
+  HelpCircle,
+  Building2,
+};
 
 export function CategoryCard({
   category,
@@ -9,21 +25,27 @@ export function CategoryCard({
   category: Category;
   count?: number;
 }) {
+  const Icon = iconMap[category.icon];
+
   return (
     <Link href={`/${category.slug}`}>
-      <Card className="h-full cursor-pointer border-gray-100 py-4 transition-all duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-md">
-        <CardContent className="flex flex-col items-center gap-2 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-2xl">
-            {category.icon}
-          </div>
-          <h3 className="text-sm font-bold text-gray-800">{category.name}</h3>
+      <div className="group flex flex-col items-center gap-3 rounded-xl border border-slate-100 bg-white px-3 py-5 text-center transition-all duration-200 hover:border-slate-200 hover:shadow-sm">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-50 transition-colors group-hover:bg-slate-100">
+          {Icon && (
+            <Icon className="h-[18px] w-[18px] text-slate-500 transition-colors group-hover:text-slate-700" />
+          )}
+        </div>
+        <div>
+          <h3 className="text-[13px] font-semibold text-slate-800">
+            {category.name}
+          </h3>
           {count !== undefined && (
-            <span className="text-xs font-medium text-blue-600">
+            <span className="mt-0.5 block text-[11px] font-medium text-slate-400">
               {count}개 항목
             </span>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </Link>
   );
 }
