@@ -21,7 +21,7 @@ export function Footer() {
               href="/about"
               className="transition-colors hover:text-slate-600"
             >
-              안내
+              작성자 소개
             </Link>
             <span className="text-slate-200">|</span>
             <span>복지로 공공데이터 활용</span>

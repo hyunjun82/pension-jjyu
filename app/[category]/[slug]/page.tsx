@@ -21,6 +21,7 @@ import {
   Scale,
   AlertTriangle,
   Info,
+  User,
 } from "lucide-react";
 import { categories } from "@/data/categories";
 import { articles } from "@/data/articles";
@@ -324,8 +325,50 @@ export default async function ArticlePage({ params }: Props) {
               </div>
             )}
 
+            {/* 작성자 카드 */}
+            <div className="mt-6 rounded-xl border border-slate-100 bg-white p-5">
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-100">
+                  <User className="h-5 w-5 text-slate-500" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[14px] font-bold text-slate-900">
+                    기초연금 에디터
+                  </p>
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    <span className="rounded-full bg-slate-50 border border-slate-200 px-2 py-0.5 text-[11px] text-slate-500">
+                      기초연금 제도 전문
+                    </span>
+                    <span className="rounded-full bg-slate-50 border border-slate-200 px-2 py-0.5 text-[11px] text-slate-500">
+                      2026년 기준
+                    </span>
+                  </div>
+                  <p className="mt-2 text-[13px] leading-relaxed text-slate-500">
+                    보건복지부·국민연금공단 공식 자료를 바탕으로 기초연금 정보를
+                    쉽고 정확하게 전달합니다.
+                  </p>
+                  <div className="mt-3 flex items-center gap-4 text-[12px]">
+                    <a
+                      href="https://www.bokjiro.go.kr"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-400 underline underline-offset-2 hover:text-slate-600"
+                    >
+                      복지로 공공데이터
+                    </a>
+                    <Link
+                      href="/about"
+                      className="font-medium text-blue-600 hover:text-blue-700"
+                    >
+                      작성자 소개 →
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* 참고 */}
-            <div className="mt-6 rounded-lg border border-slate-100 bg-slate-50 p-4">
+            <div className="mt-4 rounded-lg border border-slate-100 bg-slate-50 p-4">
               <p className="text-[12px] leading-relaxed text-slate-500">
                 본 콘텐츠는 2026년 기초연금법 시행령·시행규칙을 기준으로
                 작성되었습니다. 정확한 수급 자격과 금액은{" "}
