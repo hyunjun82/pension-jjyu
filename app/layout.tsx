@@ -40,6 +40,10 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
+        <meta
+          name="DaumWebMasterTool"
+          content="d6a6a5055d60b72c407473ca00a2bce482ed1b8daf4464b1bf045995511a2ee1:BCuwDo0LdIrXuMl0DFVoxA=="
+        />
         <link
           rel="stylesheet"
           as="style"
