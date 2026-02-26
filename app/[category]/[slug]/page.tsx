@@ -231,6 +231,27 @@ export default async function ArticlePage({ params }: Props) {
           </div>
         </header>
 
+        {/* ── 상단 CTA ─────────────────────────────── */}
+        <Link
+          href="/#calculator"
+          className="group mb-8 flex items-center justify-between rounded-xl border border-blue-100 bg-blue-50 px-6 py-4 transition-all duration-200 hover:border-blue-200 hover:bg-blue-100/70"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white">
+              <Calculator className="h-5 w-5" />
+            </div>
+            <div>
+              <span className="block text-[15px] font-bold text-slate-900">
+                내 기초연금 수급액 계산해보기
+              </span>
+              <span className="block text-[13px] text-slate-500">
+                소득·재산 정보만 입력하면 예상 수급액을 바로 확인할 수 있어요
+              </span>
+            </div>
+          </div>
+          <ArrowLeft className="h-4 w-4 rotate-180 text-blue-400 transition-transform group-hover:translate-x-1" />
+        </Link>
+
         {/* ── Two-column layout ───────────────────── */}
         <div className="flex gap-8">
           {/* Main content */}
