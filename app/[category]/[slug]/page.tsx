@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronRight, ArrowLeft } from "lucide-react";
+import { ChevronRight, ArrowLeft, Calculator } from "lucide-react";
 import {
   UserCheck,
   FileText,
@@ -115,9 +115,33 @@ export default async function ArticlePage({ params }: Props) {
         ))}
       </div>
 
-      {/* CTA */}
-      <div className="mt-8 rounded-lg border border-slate-100 bg-slate-50 p-5">
-        <p className="text-[13px] text-slate-500">
+      {/* 모의계산 CTA */}
+      <div className="mt-8 rounded-xl border border-slate-900 bg-slate-900 p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="mb-1 flex items-center gap-2">
+              <Calculator className="h-4 w-4 text-slate-300" />
+              <span className="text-[13px] font-semibold text-slate-200">
+                내 기초연금 수급 여부 바로 확인
+              </span>
+            </div>
+            <p className="text-[12px] leading-relaxed text-slate-400">
+              소득·재산 정보를 입력하면 소득인정액과 예상 수급액을 즉시 계산합니다.
+            </p>
+          </div>
+          <Link
+            href="/#calculator"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white px-5 py-2.5 text-[13px] font-semibold text-slate-900 transition-colors hover:bg-slate-100"
+          >
+            <Calculator className="h-3.5 w-3.5" />
+            모의계산 바로가기
+          </Link>
+        </div>
+      </div>
+
+      {/* 참고 */}
+      <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50 p-4">
+        <p className="text-[12px] text-slate-500">
           더 자세한 내용은{" "}
           <strong className="text-slate-600">국민연금공단(1355)</strong> 또는{" "}
           <a
