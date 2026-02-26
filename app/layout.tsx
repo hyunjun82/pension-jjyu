@@ -16,6 +16,12 @@ export const metadata: Metadata = {
     "기초연금 금액",
     "노인연금",
   ],
+  verification: {
+    google: "kPe6sAN7cMBDG2OVVWHcI8hH-BxkT5Zv6U8TVWTxuwI",
+    other: {
+      "naver-site-verification": ["f7d5154a49f58a4a7b7e5273302ad8421c5b4502"],
+    },
+  },
   openGraph: {
     title: "기초연금 정보 | 수급자격, 모의계산, 신청방법",
     description:
@@ -34,6 +40,10 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
+        <meta
+          name="DaumWebMasterTool"
+          content="d6a6a5055d60b72c407473ca00a2bce482ed1b8daf4464b1bf045995511a2ee1:BCuwDo0LdIrXuMl0DFVoxA=="
+        />
         <link
           rel="stylesheet"
           as="style"
