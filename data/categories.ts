@@ -22,7 +22,7 @@ export const categories: Category[] = [
     name: "지급금액",
     slug: "지급금액",
     icon: "Wallet",
-    description: "2025년 기초연금 지급 금액과 산정 방식",
+    description: "2026년 기초연금 지급 금액과 산정 방식",
   },
   {
     name: "소득인정액",

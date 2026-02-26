@@ -6,7 +6,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "기초연금 정보 | 수급자격, 모의계산, 신청방법",
   description:
-    "2025년 기초연금 수급자격 확인, 모의계산기, 신청방법 안내. 소득인정액 계산부터 지급금액까지 한눈에 알아보세요.",
+    "2026년 기초연금 수급자격 확인, 모의계산기, 신청방법 안내. 소득인정액 계산부터 지급금액까지 한눈에 알아보세요.",
   keywords: [
     "기초연금",
     "기초연금 수급자격",
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "기초연금 정보 | 수급자격, 모의계산, 신청방법",
     description:
-      "2025년 기초연금 수급자격 확인, 모의계산기, 신청방법 안내",
+      "2026년 기초연금 수급자격 확인, 모의계산기, 신청방법 안내",
     type: "website",
     locale: "ko_KR",
     siteName: "기초연금 정보",

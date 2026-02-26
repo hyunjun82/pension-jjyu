@@ -10,43 +10,27 @@ export default function HomePage() {
 
   return (
     <>
-      {/* Hero Section */}
+      {/* Hero */}
       <section className="border-b border-slate-100 bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
-          <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-16">
-            {/* 좌측 텍스트 */}
-            <div className="pt-4">
-              <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[12px] font-medium text-slate-500">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                2025년 기초연금 정보
-              </div>
-              <h1 className="text-3xl font-bold leading-tight tracking-tight text-slate-900 sm:text-4xl lg:text-[42px]">
-                기초연금,
-                <br />
-                <span className="text-slate-400">얼마나 받을 수 있을까?</span>
-              </h1>
-              <p className="mt-4 max-w-md text-[15px] leading-relaxed text-slate-500">
-                만 65세 이상 어르신을 위한 기초연금. 소득·재산 정보를 입력하면
-                예상 수급액을 바로 확인할 수 있습니다.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-2 text-[12px]">
-                <span className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-slate-500">
-                  모의계산
-                </span>
-                <span className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-slate-500">
-                  수급자격
-                </span>
-                <span className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-slate-500">
-                  신청안내
-                </span>
-              </div>
-            </div>
-
-            {/* 우측 계산기 */}
-            <div className="w-full max-w-md lg:justify-self-end">
-              <PensionCalculator />
-            </div>
+        <div className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
+          <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[12px] font-medium text-slate-500">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            2026년 기초연금 정보
           </div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
+            기초연금, 얼마나 받을 수 있을까?
+          </h1>
+          <p className="mt-3 max-w-xl text-[14px] leading-relaxed text-slate-500">
+            만 65세 이상 어르신을 위한 기초연금. 소득·재산 정보를 입력하면
+            예상 수급액을 바로 확인할 수 있습니다.
+          </p>
+        </div>
+      </section>
+
+      {/* Calculator Section */}
+      <section className="bg-slate-50/50">
+        <div className="mx-auto max-w-2xl px-4 py-8">
+          <PensionCalculator />
         </div>
       </section>
 
@@ -95,7 +79,7 @@ export default function HomePage() {
                 기초연금, 직접 확인하세요
               </h3>
               <p className="mt-1 text-[12px] text-slate-400">
-                국민연금공단(1355) 또는 가까운 주민센터에서 정확한 수급 자격을
+                보건복지부(129) 또는 국민연금공단(1355)에서 정확한 수급 자격을
                 확인할 수 있습니다.
               </p>
             </div>
