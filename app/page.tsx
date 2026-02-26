@@ -29,7 +29,7 @@ export default function HomePage() {
 
       {/* Calculator Section */}
       <section className="bg-slate-50/50">
-        <div className="mx-auto max-w-2xl px-4 py-8">
+        <div className="mx-auto max-w-6xl px-4 py-8">
           <PensionCalculator />
         </div>
       </section>

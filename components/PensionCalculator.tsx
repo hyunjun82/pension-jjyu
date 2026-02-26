@@ -356,248 +356,236 @@ export function PensionCalculator() {
         )}
       </div>
 
-      {/* ── 01. 기본정보 ────────────────────────────── */}
-      <div className="rounded-xl border border-slate-100 bg-white p-5">
-        <div className="mb-4 flex items-center gap-2">
-          <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-900 text-[10px] font-bold text-white">
-            01
-          </span>
-          <h3 className="text-[14px] font-semibold text-slate-800">
-            기본정보
-          </h3>
-        </div>
-
-        <div className="space-y-4">
-          {/* 가구유형 */}
-          <div>
-            <label className="mb-2 block text-[12px] font-medium text-slate-600">
-              가구 유형 <span className="text-red-400">*</span>
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => update("household", "single")}
-                className={`rounded-lg border px-3 py-2.5 text-center transition-all ${
-                  form.household === "single"
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-slate-200 text-slate-600 hover:border-slate-300"
-                }`}
-              >
-                <span className="block text-[13px] font-medium">단독가구</span>
-              </button>
-              <button
-                onClick={() => update("household", "couple")}
-                className={`rounded-lg border px-3 py-2.5 text-center transition-all ${
-                  form.household === "couple"
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-slate-200 text-slate-600 hover:border-slate-300"
-                }`}
-              >
-                <span className="block text-[13px] font-medium">부부가구</span>
-              </button>
-            </div>
-            <details className="mt-1.5">
-              <summary className="cursor-pointer text-[10px] font-medium text-slate-400 hover:text-slate-500">
-                산정 기준 보기
-              </summary>
-              <div className="mt-1 space-y-0.5 text-[10px] text-slate-400">
-                <p>· 소득인정액 = 월 소득평가액 + 재산의 월 소득환산액</p>
-                <p>
-                  · 월 소득평가액 = {"{"}0.7 × (근로소득 - 116만원){"}"} +
-                  기타소득
-                </p>
-                <p>
-                  · 재산의 월 소득환산액 = [{"{"}(일반재산 - 기본재산) +
-                  (금융재산 - 2,000만원) - 부채{"}"} × 4% / 12] + P
-                </p>
-                <p>
-                  · P : 고급자동차(4,000만원 이상) 및 회원권의 가액
-                </p>
-                <p className="mt-1 font-medium text-slate-500">
-                  · 선정기준액(&apos;26년): 단독가구{" "}
-                  {THRESHOLDS.single.toLocaleString()}원, 부부가구{" "}
-                  {THRESHOLDS.couple.toLocaleString()}원
-                </p>
-              </div>
-            </details>
+      {/* ── 01 기본정보 + 02 소득정보 (2단 그리드) ──── */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        {/* 01. 기본정보 */}
+        <div className="rounded-xl border border-slate-100 bg-white p-5">
+          <div className="mb-4 flex items-center gap-2">
+            <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-900 text-[10px] font-bold text-white">
+              01
+            </span>
+            <h3 className="text-[14px] font-semibold text-slate-800">
+              기본정보
+            </h3>
           </div>
 
-          {/* 거주지 */}
-          <div>
-            <label className="mb-2 block text-[12px] font-medium text-slate-600">
-              거주지 <span className="text-red-400">*</span>
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {(
-                [
-                  { value: "metro", label: "대도시", sub: "특별·광역시" },
-                  { value: "city", label: "중소도시", sub: "도의 시" },
-                  { value: "rural", label: "농어촌", sub: "도의 군" },
-                ] as const
-              ).map((r) => (
+          <div className="space-y-4">
+            {/* 가구유형 */}
+            <div>
+              <label className="mb-2 block text-[12px] font-medium text-slate-600">
+                가구 유형 <span className="text-red-400">*</span>
+              </label>
+              <div className="grid grid-cols-2 gap-2">
                 <button
-                  key={r.value}
-                  onClick={() => update("region", r.value)}
-                  className={`rounded-lg border px-2 py-2.5 text-center transition-all ${
-                    form.region === r.value
+                  onClick={() => update("household", "single")}
+                  className={`rounded-lg border px-3 py-2.5 text-center transition-all ${
+                    form.household === "single"
                       ? "border-slate-900 bg-slate-900 text-white"
                       : "border-slate-200 text-slate-600 hover:border-slate-300"
                   }`}
                 >
-                  <span className="block text-[12px] font-medium">
-                    {r.label}
-                  </span>
-                  <span
-                    className={`mt-0.5 block text-[10px] ${
+                  <span className="block text-[13px] font-medium">단독가구</span>
+                </button>
+                <button
+                  onClick={() => update("household", "couple")}
+                  className={`rounded-lg border px-3 py-2.5 text-center transition-all ${
+                    form.household === "couple"
+                      ? "border-slate-900 bg-slate-900 text-white"
+                      : "border-slate-200 text-slate-600 hover:border-slate-300"
+                  }`}
+                >
+                  <span className="block text-[13px] font-medium">부부가구</span>
+                </button>
+              </div>
+              <details className="mt-1.5">
+                <summary className="cursor-pointer text-[10px] font-medium text-slate-400 hover:text-slate-500">
+                  산정 기준 보기
+                </summary>
+                <div className="mt-1 space-y-0.5 text-[10px] text-slate-400">
+                  <p>· 소득인정액 = 월 소득평가액 + 재산의 월 소득환산액</p>
+                  <p>
+                    · 월 소득평가액 = {"{"}0.7 × (근로소득 - 116만원){"}"} +
+                    기타소득
+                  </p>
+                  <p>
+                    · 재산의 월 소득환산액 = [{"{"}(일반재산 - 기본재산) +
+                    (금융재산 - 2,000만원) - 부채{"}"} × 4% / 12] + P
+                  </p>
+                  <p>
+                    · P : 고급자동차(4,000만원 이상) 및 회원권의 가액
+                  </p>
+                  <p className="mt-1 font-medium text-slate-500">
+                    · 선정기준액(&apos;26년): 단독가구{" "}
+                    {THRESHOLDS.single.toLocaleString()}원, 부부가구{" "}
+                    {THRESHOLDS.couple.toLocaleString()}원
+                  </p>
+                </div>
+              </details>
+            </div>
+
+            {/* 거주지 */}
+            <div>
+              <label className="mb-2 block text-[12px] font-medium text-slate-600">
+                거주지 <span className="text-red-400">*</span>
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {(
+                  [
+                    { value: "metro", label: "대도시", sub: "특별·광역시" },
+                    { value: "city", label: "중소도시", sub: "도의 시" },
+                    { value: "rural", label: "농어촌", sub: "도의 군" },
+                  ] as const
+                ).map((r) => (
+                  <button
+                    key={r.value}
+                    onClick={() => update("region", r.value)}
+                    className={`rounded-lg border px-2 py-2.5 text-center transition-all ${
                       form.region === r.value
-                        ? "text-slate-300"
-                        : "text-slate-400"
+                        ? "border-slate-900 bg-slate-900 text-white"
+                        : "border-slate-200 text-slate-600 hover:border-slate-300"
                     }`}
                   >
-                    {r.sub}
-                  </span>
-                </button>
-              ))}
-            </div>
-            <details className="mt-1.5">
-              <summary className="cursor-pointer text-[10px] font-medium text-slate-400 hover:text-slate-500">
-                기본공제 재산액 보기
-              </summary>
-              <div className="mt-1 text-[10px] text-slate-400">
-                <p>· 대도시 1억 3,500만원, 중소도시 8,500만원, 농어촌 7,250만원</p>
-                <p>
-                  · 대도시: 특별시, 광역시의 &quot;구&quot;(도농복합군 포함), 특례시
-                </p>
-                <p>
-                  · 중소도시: 도의 &quot;시&quot;와 세종특별자치시
-                </p>
-                <p>· 농어촌: 도의 &quot;군&quot;</p>
+                    <span className="block text-[12px] font-medium">
+                      {r.label}
+                    </span>
+                    <span
+                      className={`mt-0.5 block text-[10px] ${
+                        form.region === r.value
+                          ? "text-slate-300"
+                          : "text-slate-400"
+                      }`}
+                    >
+                      {r.sub}
+                    </span>
+                  </button>
+                ))}
               </div>
-            </details>
+              <details className="mt-1.5">
+                <summary className="cursor-pointer text-[10px] font-medium text-slate-400 hover:text-slate-500">
+                  기본공제 재산액 보기
+                </summary>
+                <div className="mt-1 text-[10px] text-slate-400">
+                  <p>· 대도시 1억 3,500만원, 중소도시 8,500만원, 농어촌 7,250만원</p>
+                  <p>
+                    · 대도시: 특별시, 광역시의 &quot;구&quot;(도농복합군 포함), 특례시
+                  </p>
+                  <p>
+                    · 중소도시: 도의 &quot;시&quot;와 세종특별자치시
+                  </p>
+                  <p>· 농어촌: 도의 &quot;군&quot;</p>
+                </div>
+              </details>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* ── 02. 소득정보 ────────────────────────────── */}
-      <div className="rounded-xl border border-slate-100 bg-white p-5">
-        <div className="mb-4 flex items-center gap-2">
-          <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-900 text-[10px] font-bold text-white">
-            02
-          </span>
-          <h3 className="text-[14px] font-semibold text-slate-800">
-            소득정보
-          </h3>
-        </div>
+        {/* 02. 소득정보 */}
+        <div className="rounded-xl border border-slate-100 bg-white p-5">
+          <div className="mb-4 flex items-center gap-2">
+            <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-900 text-[10px] font-bold text-white">
+              02
+            </span>
+            <h3 className="text-[14px] font-semibold text-slate-800">
+              소득정보
+            </h3>
+          </div>
 
-        <div className="space-y-4">
-          <Field
-            label="근로소득"
-            value={form.laborIncome}
-            onChange={(v) => update("laborIncome", v)}
-            suffix="만원/월"
-            help="상시근로소득 및 일용근로소득 (공공일자리 소득 제외)"
-            details={[
-              "상시근로소득: 3개월 이상 계속 고용되어 월정액 급여를 지급 받는 자의 근로소득",
-              "일용근로소득: 3개월 미만 (건설공사·하역작업 종사자 제외)",
-              "공공일자리 소득(노인일자리사업, 자활근로, 공공근로 등)은 제외",
-              "상시근로소득 반영액 = (근로소득 - 116만원) × 0.7",
-            ]}
-          />
+          <div className="space-y-4">
+            <Field
+              label="근로소득"
+              value={form.laborIncome}
+              onChange={(v) => update("laborIncome", v)}
+              suffix="만원/월"
+              help="상시근로소득 및 일용근로소득 (공공일자리 소득 제외)"
+              details={[
+                "상시근로소득: 3개월 이상 계속 고용되어 월정액 급여를 지급 받는 자의 근로소득",
+                "일용근로소득: 3개월 미만 (건설공사·하역작업 종사자 제외)",
+                "공공일자리 소득(노인일자리사업, 자활근로, 공공근로 등)은 제외",
+                "상시근로소득 반영액 = (근로소득 - 116만원) × 0.7",
+              ]}
+            />
 
-          <Field
-            label="사업소득"
-            value={form.businessIncome}
-            onChange={(v) => update("businessIncome", v)}
-            suffix="만원/월"
-            help="농업·임업·어업 소득, 임대소득, 기타사업소득"
-            details={[
-              "농업·임업·어업 소득",
-              "임대 소득",
-              "기타사업소득: 도매업·소매업, 제조업, 기타 사업에서 얻는 소득",
-            ]}
-          />
+            <Field
+              label="사업소득"
+              value={form.businessIncome}
+              onChange={(v) => update("businessIncome", v)}
+              suffix="만원/월"
+              help="농업·임업·어업 소득, 임대소득, 기타사업소득"
+              details={[
+                "농업·임업·어업 소득",
+                "임대 소득",
+                "기타사업소득: 도매업·소매업, 제조업, 기타 사업에서 얻는 소득",
+              ]}
+            />
 
-          <Field
-            label="재산소득"
-            value={form.assetIncome}
-            onChange={(v) => update("assetIncome", v)}
-            suffix="만원/월"
-            help="이자소득, 연금소득의 합"
-          />
-
-          <Field
-            label="공적이전소득"
-            value={form.publicTransferIncome}
-            onChange={(v) => update("publicTransferIncome", v)}
-            suffix="만원/월"
-            help="각종 법령에 의해 정기적으로 지급되는 수당·연금·급여 등 (국민연금, 산재급여)"
-            details={[
-              "공적이전소득: 각종 법령의 규정에 의해 정기적으로 지급되는 각종 수당·연금·급여·기타금품",
-              "일시금으로 받는 금품은 재산으로 산정",
-            ]}
-          />
-
-          {/* 무료임차소득 */}
-          <div>
-            <label className="mb-1.5 block text-[12px] font-medium text-slate-600">
-              무료임차소득
-            </label>
-            <p className="mb-2 text-[10px] text-slate-400">
-              자녀소유 주택에 거주 시 시가표준액 입력 (6억 이상만 해당)
-            </p>
             <div className="grid grid-cols-2 gap-2">
-              <div className="relative">
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  placeholder="0"
-                  value={form.freeRentShareRatio}
-                  onChange={(e) =>
-                    update("freeRentShareRatio", e.target.value)
-                  }
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 pr-8 text-right text-[14px] font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400">
-                  %
-                </span>
-                <span className="mt-0.5 block text-[10px] text-slate-400">
-                  지분율
-                </span>
-              </div>
-              <div className="relative">
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  placeholder="0"
-                  value={form.freeRentValue}
-                  onChange={(e) => update("freeRentValue", e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 pr-12 text-right text-[14px] font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400">
-                  만원
-                </span>
-                <span className="mt-0.5 block text-[10px] text-slate-400">
-                  시가표준액
-                </span>
+              <Field
+                label="재산소득"
+                value={form.assetIncome}
+                onChange={(v) => update("assetIncome", v)}
+                suffix="만원/월"
+                help="이자소득, 연금소득의 합"
+              />
+
+              <Field
+                label="공적이전소득"
+                value={form.publicTransferIncome}
+                onChange={(v) => update("publicTransferIncome", v)}
+                suffix="만원/월"
+                help="국민연금, 산재급여 등"
+              />
+            </div>
+
+            {/* 무료임차소득 */}
+            <div>
+              <label className="mb-1.5 block text-[12px] font-medium text-slate-600">
+                무료임차소득
+              </label>
+              <p className="mb-2 text-[10px] text-slate-400">
+                자녀소유 주택에 거주 시 시가표준액 입력 (6억 이상만 해당)
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="relative">
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    placeholder="0"
+                    value={form.freeRentShareRatio}
+                    onChange={(e) =>
+                      update("freeRentShareRatio", e.target.value)
+                    }
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 pr-8 text-right text-[14px] font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400">
+                    %
+                  </span>
+                  <span className="mt-0.5 block text-[10px] text-slate-400">
+                    지분율
+                  </span>
+                </div>
+                <div className="relative">
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    placeholder="0"
+                    value={form.freeRentValue}
+                    onChange={(e) => update("freeRentValue", e.target.value)}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 pr-12 text-right text-[14px] font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400">
+                    만원
+                  </span>
+                  <span className="mt-0.5 block text-[10px] text-slate-400">
+                    시가표준액
+                  </span>
+                </div>
               </div>
             </div>
-            <details className="mt-1.5">
-              <summary className="cursor-pointer text-[10px] font-medium text-slate-400 hover:text-slate-500">
-                자세히 보기
-              </summary>
-              <div className="mt-1 text-[10px] text-slate-400">
-                <p>· 자녀소유의 주택에 거주 시 거주주택의 시가표준액을 입력</p>
-                <p>· 시가표준액 6억 이상인 경우에만 해당</p>
-                <p>
-                  · 자녀소유의 주택이 타인과 공동명의인 경우, 자녀의
-                  지분율(%)을 입력
-                </p>
-              </div>
-            </details>
           </div>
         </div>
       </div>
 
-      {/* ── 03. 재산정보 ────────────────────────────── */}
+      {/* ── 03. 재산정보 (전체 너비, 내부 2단) ─────── */}
       <div className="rounded-xl border border-slate-100 bg-white p-5">
         <div className="mb-4 flex items-center gap-2">
           <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-900 text-[10px] font-bold text-white">
@@ -608,103 +596,104 @@ export function PensionCalculator() {
           </h3>
         </div>
 
-        {/* 일반재산 */}
-        <div className="space-y-4">
-          <h4 className="text-[12px] font-semibold tracking-wide text-slate-400">
-            일반재산
-          </h4>
-
-          <Field
-            label="건축물"
-            value={form.buildingValue}
-            onChange={(v) => update("buildingValue", v)}
-            help="주택, 건물, 시설물 등의 시가표준액의 합"
-          />
-          <Field
-            label="토지"
-            value={form.landValue}
-            onChange={(v) => update("landValue", v)}
-            help="시가표준액"
-          />
-          <Field
-            label="임차보증금"
-            value={form.depositValue}
-            onChange={(v) => update("depositValue", v)}
-            help="전월세보증금, 상가보증금, 기타보증금 등의 합"
-          />
-          <Field
-            label="기타재산"
-            value={form.otherPropertyValue}
-            onChange={(v) => update("otherPropertyValue", v)}
-            help="증여재산, 입목재산, 어업권, 조합원 입주권, 분양권 등"
-          />
-          <Field
-            label="항공기/선박"
-            value={form.aircraftShipValue}
-            onChange={(v) => update("aircraftShipValue", v)}
-          />
-          <Field
-            label="회원권"
-            value={form.membershipValue}
-            onChange={(v) => update("membershipValue", v)}
-            help="골프장, 승마, 콘도미니엄, 종합체육시설이용, 요트 회원권 등 시가표준액"
-            details={[
-              "회원권은 월 소득환산율 100% 적용 (P값으로 산정)",
-            ]}
-          />
-
-          {/* 자동차 */}
-          <div className="border-t border-slate-100 pt-4">
-            <h4 className="mb-3 text-[12px] font-semibold tracking-wide text-slate-400">
-              자동차
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* 좌측: 일반재산 */}
+          <div className="space-y-4">
+            <h4 className="text-[12px] font-semibold tracking-wide text-slate-400">
+              일반재산
             </h4>
 
-            <label className="mb-3 flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={form.carForBusiness}
-                onChange={(e) => update("carForBusiness", e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 accent-slate-900"
-              />
-              <span className="text-[12px] font-medium text-slate-600">
-                생업용 자동차
-              </span>
-            </label>
-
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-4">
               <Field
-                label="배기량"
-                value={form.carCC}
-                onChange={(v) => update("carCC", v)}
-                suffix="cc"
-                placeholder="0"
+                label="건축물"
+                value={form.buildingValue}
+                onChange={(v) => update("buildingValue", v)}
+                help="주택, 건물, 시설물 시가표준액"
               />
               <Field
-                label="가액"
-                value={form.carValue}
-                onChange={(v) => update("carValue", v)}
+                label="토지"
+                value={form.landValue}
+                onChange={(v) => update("landValue", v)}
+                help="시가표준액"
+              />
+              <Field
+                label="임차보증금"
+                value={form.depositValue}
+                onChange={(v) => update("depositValue", v)}
+                help="전월세·상가·기타보증금"
+              />
+              <Field
+                label="기타재산"
+                value={form.otherPropertyValue}
+                onChange={(v) => update("otherPropertyValue", v)}
+                help="증여재산, 입주권, 분양권 등"
+              />
+              <Field
+                label="항공기/선박"
+                value={form.aircraftShipValue}
+                onChange={(v) => update("aircraftShipValue", v)}
+              />
+              <Field
+                label="회원권"
+                value={form.membershipValue}
+                onChange={(v) => update("membershipValue", v)}
+                help="골프장, 콘도 등 시가표준액"
               />
             </div>
 
-            <details className="mt-1.5">
-              <summary className="cursor-pointer text-[10px] font-medium text-slate-400 hover:text-slate-500">
-                자동차 산정 기준 보기
-              </summary>
-              <div className="mt-1 space-y-0.5 text-[10px] text-slate-400">
-                <p>· 생업용 자동차: 재산산정 제외 (1대 한정)</p>
-                <p>
-                  · 4,000만원 이상 고급자동차: 월 소득환산율 100% 적용 (P값)
-                </p>
-                <p>
-                  · 그 외 자동차: 연 4% 소득환산율 적용 (일반재산)
-                </p>
+            {/* 자동차 */}
+            <div className="border-t border-slate-100 pt-4">
+              <h4 className="mb-3 text-[12px] font-semibold tracking-wide text-slate-400">
+                자동차
+              </h4>
+
+              <label className="mb-3 flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={form.carForBusiness}
+                  onChange={(e) => update("carForBusiness", e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 accent-slate-900"
+                />
+                <span className="text-[12px] font-medium text-slate-600">
+                  생업용 자동차
+                </span>
+              </label>
+
+              <div className="grid grid-cols-2 gap-2">
+                <Field
+                  label="배기량"
+                  value={form.carCC}
+                  onChange={(v) => update("carCC", v)}
+                  suffix="cc"
+                  placeholder="0"
+                />
+                <Field
+                  label="가액"
+                  value={form.carValue}
+                  onChange={(v) => update("carValue", v)}
+                />
               </div>
-            </details>
+
+              <details className="mt-1.5">
+                <summary className="cursor-pointer text-[10px] font-medium text-slate-400 hover:text-slate-500">
+                  자동차 산정 기준 보기
+                </summary>
+                <div className="mt-1 space-y-0.5 text-[10px] text-slate-400">
+                  <p>· 생업용 자동차: 재산산정 제외 (1대 한정)</p>
+                  <p>
+                    · 4,000만원 이상 고급자동차: 월 소득환산율 100% 적용 (P값)
+                  </p>
+                  <p>
+                    · 그 외 자동차: 연 4% 소득환산율 적용 (일반재산)
+                  </p>
+                </div>
+              </details>
+            </div>
           </div>
 
-          {/* 금융재산 */}
-          <div className="border-t border-slate-100 pt-4">
-            <h4 className="mb-3 text-[12px] font-semibold tracking-wide text-slate-400">
+          {/* 우측: 금융재산 + 부채 */}
+          <div className="space-y-4">
+            <h4 className="text-[12px] font-semibold tracking-wide text-slate-400">
               금융재산
             </h4>
             <Field
@@ -717,85 +706,84 @@ export function PensionCalculator() {
                 "3개월 이내 평균잔액, 최종시세가액, 액면가액 등 반영",
               ]}
             />
-          </div>
 
-          {/* 부채 */}
-          <div className="border-t border-slate-100 pt-4">
-            <h4 className="mb-3 text-[12px] font-semibold tracking-wide text-slate-400">
-              부채
-            </h4>
+            <div className="border-t border-slate-100 pt-4">
+              <h4 className="mb-3 text-[12px] font-semibold tracking-wide text-slate-400">
+                부채
+              </h4>
 
-            <div className="space-y-4">
-              <Field
-                label="대출금"
-                value={form.loanDebt}
-                onChange={(v) => update("loanDebt", v)}
-                help="금융기관 대출금"
-              />
+              <div className="space-y-4">
+                <Field
+                  label="대출금"
+                  value={form.loanDebt}
+                  onChange={(v) => update("loanDebt", v)}
+                  help="금융기관 대출금"
+                />
 
-              <div>
-                <label className="mb-1.5 block text-[12px] font-medium text-slate-600">
-                  임대보증금
-                </label>
-                <p className="mb-2 text-[10px] text-slate-400">
-                  주택 등 시가표준액의 50% 범위 내에서 인정
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        inputMode="numeric"
-                        placeholder="0"
-                        value={form.rentalDepositHouseValue}
-                        onChange={(e) =>
-                          update("rentalDepositHouseValue", e.target.value)
-                        }
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 pr-12 text-right text-[14px] font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400">
-                        만원
+                <div>
+                  <label className="mb-1.5 block text-[12px] font-medium text-slate-600">
+                    임대보증금
+                  </label>
+                  <p className="mb-2 text-[10px] text-slate-400">
+                    주택 등 시가표준액의 50% 범위 내에서 인정
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          inputMode="numeric"
+                          placeholder="0"
+                          value={form.rentalDepositHouseValue}
+                          onChange={(e) =>
+                            update("rentalDepositHouseValue", e.target.value)
+                          }
+                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 pr-12 text-right text-[14px] font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400">
+                          만원
+                        </span>
+                      </div>
+                      <span className="mt-0.5 block text-[10px] text-slate-400">
+                        주택 등 시가표준액
                       </span>
                     </div>
-                    <span className="mt-0.5 block text-[10px] text-slate-400">
-                      주택 등 시가표준액
-                    </span>
-                  </div>
-                  <div>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        inputMode="numeric"
-                        placeholder="0"
-                        value={form.rentalDepositAmount}
-                        onChange={(e) =>
-                          update("rentalDepositAmount", e.target.value)
-                        }
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 pr-12 text-right text-[14px] font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400">
-                        만원
+                    <div>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          inputMode="numeric"
+                          placeholder="0"
+                          value={form.rentalDepositAmount}
+                          onChange={(e) =>
+                            update("rentalDepositAmount", e.target.value)
+                          }
+                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 pr-12 text-right text-[14px] font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400">
+                          만원
+                        </span>
+                      </div>
+                      <span className="mt-0.5 block text-[10px] text-slate-400">
+                        임대보증금
                       </span>
                     </div>
-                    <span className="mt-0.5 block text-[10px] text-slate-400">
-                      임대보증금
-                    </span>
                   </div>
+                  <details className="mt-1.5">
+                    <summary className="cursor-pointer text-[10px] font-medium text-slate-400 hover:text-slate-500">
+                      자세히 보기
+                    </summary>
+                    <div className="mt-1 text-[10px] text-slate-400">
+                      <p>
+                        · 전세권 설정 또는 확정일자가 있는 임대보증금 중 주택 등
+                        시가표준액의 50% 범위 내에서 인정
+                      </p>
+                      <p>
+                        · 주택, 상가 등을 보유한 경우 한 채에 한해 인정
+                      </p>
+                    </div>
+                  </details>
                 </div>
-                <details className="mt-1.5">
-                  <summary className="cursor-pointer text-[10px] font-medium text-slate-400 hover:text-slate-500">
-                    자세히 보기
-                  </summary>
-                  <div className="mt-1 text-[10px] text-slate-400">
-                    <p>
-                      · 전세권 설정 또는 확정일자가 있는 임대보증금 중 주택 등
-                      시가표준액의 50% 범위 내에서 인정
-                    </p>
-                    <p>
-                      · 주택, 상가 등을 보유한 경우 한 채에 한해 인정
-                    </p>
-                  </div>
-                </details>
               </div>
             </div>
           </div>
@@ -885,7 +873,7 @@ export function PensionCalculator() {
 
             {showDetail && (
               <div className="border-t border-slate-100 px-5 py-4">
-                <div className="space-y-4">
+                <div className="grid gap-4 lg:grid-cols-2">
                   {/* 소득평가액 */}
                   <div>
                     <h5 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
@@ -985,22 +973,20 @@ export function PensionCalculator() {
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* 최종 */}
-                  <div className="rounded-lg bg-slate-50 p-3">
-                    <div className="flex justify-between text-[13px]">
-                      <span className="font-semibold text-slate-700">
-                        소득인정액
-                      </span>
-                      <span className="font-bold text-slate-900">
-                        {fmtKRW(result.incomeRecognition)}
-                      </span>
-                    </div>
-                    <div className="mt-1 flex justify-between text-[12px]">
-                      <span className="text-slate-400">
-                        = 소득평가액 + 재산 소득환산액
-                      </span>
-                    </div>
+                {/* 최종 */}
+                <div className="mt-4 rounded-lg bg-slate-50 p-3">
+                  <div className="flex justify-between text-[13px]">
+                    <span className="font-semibold text-slate-700">
+                      소득인정액
+                    </span>
+                    <span className="font-bold text-slate-900">
+                      {fmtKRW(result.incomeRecognition)}
+                    </span>
+                  </div>
+                  <div className="mt-1 text-[12px] text-slate-400">
+                    = 소득평가액 + 재산 소득환산액
                   </div>
                 </div>
               </div>
