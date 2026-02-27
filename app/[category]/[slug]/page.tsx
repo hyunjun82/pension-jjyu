@@ -326,7 +326,7 @@ export default async function ArticlePage({ params }: Props) {
             )}
 
             {/* 작성자 카드 */}
-            <div className="mt-6 rounded-xl border border-slate-100 bg-white p-5">
+            <div className="mt-6 rounded-xl border border-slate-300 bg-white p-5">
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-100">
                   <User className="h-5 w-5 text-slate-500" />
