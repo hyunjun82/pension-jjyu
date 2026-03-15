@@ -528,7 +528,7 @@ export function PensionCalculator() {
             {/* 무료임차소득 - 숨김 가능 */}
             <details>
               <summary className="cursor-pointer text-[15px] font-medium text-blue-600 hover:text-blue-800">
-                자녀 집에 무료로 살고 계신가요?
+                자녀 소유 주택에 거주하고 계신가요?
               </summary>
               <div className="mt-3 rounded-xl bg-slate-50 p-4 space-y-3">
                 <p className="text-sm text-slate-600">6억원 이상 주택만 해당돼요</p>
