@@ -19,6 +19,8 @@ const LABOR_ADDITIONAL_DEDUCTION_RATE = 0.3;
 const LUXURY_CAR_THRESHOLD = 40_000_000;
 const FREE_RENT_THRESHOLD = 600_000_000;
 const FREE_RENT_ANNUAL_RATE = 0.0078;
+const AIRCRAFT_SHIP_FACTOR = 3.5;
+const DEPOSIT_FACTOR = 0.95;
 
 // ── Types ──────────────────────────────────────────────────────
 type Household = "single" | "couple";
@@ -28,6 +30,7 @@ interface FormState {
   household: Household;
   region: Region;
   laborIncome: string;
+  laborIncomeSpouse: string;
   businessIncome: string;
   assetIncome: string;
   publicTransferIncome: string;
@@ -69,6 +72,7 @@ const initialForm: FormState = {
   household: "single",
   region: "metro",
   laborIncome: "",
+  laborIncomeSpouse: "",
   businessIncome: "",
   assetIncome: "",
   publicTransferIncome: "",
@@ -119,7 +123,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-1.5 block text-[12px] font-medium text-slate-600">
+      <label className="mb-1.5 block text-sm font-medium text-slate-600">
         {label}
       </label>
       <div className="relative">
@@ -129,23 +133,23 @@ function Field({
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 pr-16 text-right text-[14px] font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-3.5 pr-16 text-right text-base font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
         />
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400">
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
           {suffix}
         </span>
       </div>
       {help && (
-        <p className="mt-1 text-[10px] leading-relaxed text-slate-400">
+        <p className="mt-1 text-xs leading-relaxed text-slate-400">
           {help}
         </p>
       )}
       {details && details.length > 0 && (
         <details className="mt-1">
-          <summary className="cursor-pointer text-[10px] font-medium text-slate-400 hover:text-slate-500">
+          <summary className="cursor-pointer text-xs font-medium text-slate-400 hover:text-slate-500">
             자세히 보기
           </summary>
-          <ul className="mt-1 space-y-0.5 text-[10px] leading-relaxed text-slate-400">
+          <ul className="mt-1 space-y-0.5 text-xs leading-relaxed text-slate-400">
             {details.map((d, i) => (
               <li key={i}>· {d}</li>
             ))}
@@ -175,11 +179,19 @@ export function PensionCalculator() {
     const f = form;
 
     // ── 1. 월 소득평가액 ──────────────────────────
-    // 근로소득 반영: max(0, (근로소득 - 116만)) × 0.7
+    // 근로소득 반영: 1인당 max(0, (근로소득 - 116만)) × 0.7
     const laborWon = toWon(f.laborIncome);
     const laborAfterDeduction = Math.max(0, laborWon - LABOR_INCOME_DEDUCTION);
-    const laborIncomeReflected =
+    let laborIncomeReflected =
       laborAfterDeduction * (1 - LABOR_ADDITIONAL_DEDUCTION_RATE);
+
+    // 부부가구: 배우자 근로소득도 별도로 116만원 공제
+    if (f.household === "couple") {
+      const spouseWon = toWon(f.laborIncomeSpouse);
+      const spouseAfterDeduction = Math.max(0, spouseWon - LABOR_INCOME_DEDUCTION);
+      laborIncomeReflected +=
+        spouseAfterDeduction * (1 - LABOR_ADDITIONAL_DEDUCTION_RATE);
+    }
 
     // 무료임차소득
     const freeRentWon = toWon(f.freeRentValue);
@@ -200,13 +212,13 @@ export function PensionCalculator() {
     const monthlyIncomeEval = laborIncomeReflected + otherIncome;
 
     // ── 2. 재산의 월 소득환산액 ───────────────────
-    // 일반재산 합계
+    // 일반재산 합계 (보정계수 적용)
     let generalProperty =
       toWon(f.buildingValue) +
       toWon(f.landValue) +
-      toWon(f.depositValue) +
+      toWon(f.depositValue) * DEPOSIT_FACTOR +
       toWon(f.otherPropertyValue) +
-      toWon(f.aircraftShipValue);
+      toWon(f.aircraftShipValue) * AIRCRAFT_SHIP_FACTOR;
 
     // 자동차 처리
     const carWon = toWon(f.carValue);
@@ -236,13 +248,14 @@ export function PensionCalculator() {
     );
     const totalDebt = loanWon + rentalDebtRecognized;
 
-    // 순재산
+    // 순재산: 일반재산과 금융재산을 각각 별도 차감 후 합산 (복지로 공식)
+    const generalAfterDeduction = Math.max(
+      0,
+      generalProperty - BASE_PROPERTY_DEDUCTION[f.region]
+    );
     const netProperty = Math.max(
       0,
-      generalProperty -
-        BASE_PROPERTY_DEDUCTION[f.region] +
-        financialAfterDeduction -
-        totalDebt
+      generalAfterDeduction + financialAfterDeduction - totalDebt
     );
 
     // 재산의 월 소득환산액
@@ -303,10 +316,10 @@ export function PensionCalculator() {
             <Calculator className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h2 className="text-[17px] font-bold text-slate-900">
+            <h2 className="text-xl font-bold text-slate-900">
               기초연금 모의계산기
             </h2>
-            <p className="text-[12px] text-slate-400">
+            <p className="text-sm text-slate-400">
               2026년도 기초연금법 시행령·시행규칙 기준
             </p>
           </div>
@@ -314,7 +327,7 @@ export function PensionCalculator() {
 
         <button
           onClick={() => setShowIntro(!showIntro)}
-          className="mt-3 flex w-full items-center gap-1.5 text-[12px] font-medium text-slate-400 transition-colors hover:text-slate-600"
+          className="mt-3 flex w-full items-center gap-1.5 text-sm font-medium text-slate-400 transition-colors hover:text-slate-600"
         >
           <ChevronDown
             className={`h-3.5 w-3.5 transition-transform ${showIntro ? "rotate-180" : ""}`}
@@ -323,7 +336,7 @@ export function PensionCalculator() {
         </button>
 
         {showIntro && (
-          <div className="mt-3 space-y-2 rounded-lg border border-slate-100 bg-slate-50 p-4 text-[11px] leading-relaxed text-slate-500">
+          <div className="mt-3 space-y-2 rounded-lg border border-slate-100 bg-slate-50 p-4 text-[15px] leading-relaxed text-slate-500">
             <p>
               기초연금은 만 65세 이상 분들이 읍·면·동에 신청하시면 자산조사 후
               소득과 재산이 적으신 하위 70%의 어르신께 지급하게 됩니다.
@@ -338,7 +351,7 @@ export function PensionCalculator() {
               차이로 인해 모의계산 결과와 실제 연금신청시 결과가 다를 수
               있습니다.
             </p>
-            <div className="mt-2 border-t border-slate-200 pt-2 text-[10px] text-slate-400">
+            <div className="mt-2 border-t border-slate-200 pt-2 text-xs text-slate-400">
               <p>
                 * 본 기초연금 모의계산은 「기초연금 시행령·시행규칙」 및
                 「기초연금법 고시」를 적용하였습니다. (2026년도 기준)
@@ -361,10 +374,10 @@ export function PensionCalculator() {
         {/* 01. 기본정보 */}
         <div className="rounded-xl border border-slate-100 bg-white p-5">
           <div className="mb-4 flex items-center gap-2">
-            <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-900 text-[10px] font-bold text-white">
+            <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-900 text-xs font-bold text-white">
               01
             </span>
-            <h3 className="text-[14px] font-semibold text-slate-800">
+            <h3 className="text-base font-semibold text-slate-800">
               기본정보
             </h3>
           </div>
@@ -372,36 +385,36 @@ export function PensionCalculator() {
           <div className="space-y-4">
             {/* 가구유형 */}
             <div>
-              <label className="mb-2 block text-[12px] font-medium text-slate-600">
+              <label className="mb-2 block text-sm font-medium text-slate-600">
                 가구 유형 <span className="text-red-400">*</span>
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => update("household", "single")}
-                  className={`rounded-lg border px-3 py-2.5 text-center transition-all ${
+                  className={`rounded-lg border px-3 py-3.5 text-center transition-all ${
                     form.household === "single"
                       ? "border-slate-900 bg-slate-900 text-white"
                       : "border-slate-200 text-slate-600 hover:border-slate-300"
                   }`}
                 >
-                  <span className="block text-[13px] font-medium">단독가구</span>
+                  <span className="block text-[15px] font-medium">단독가구</span>
                 </button>
                 <button
                   onClick={() => update("household", "couple")}
-                  className={`rounded-lg border px-3 py-2.5 text-center transition-all ${
+                  className={`rounded-lg border px-3 py-3.5 text-center transition-all ${
                     form.household === "couple"
                       ? "border-slate-900 bg-slate-900 text-white"
                       : "border-slate-200 text-slate-600 hover:border-slate-300"
                   }`}
                 >
-                  <span className="block text-[13px] font-medium">부부가구</span>
+                  <span className="block text-[15px] font-medium">부부가구</span>
                 </button>
               </div>
               <details className="mt-1.5">
-                <summary className="cursor-pointer text-[10px] font-medium text-slate-400 hover:text-slate-500">
+                <summary className="cursor-pointer text-xs font-medium text-slate-400 hover:text-slate-500">
                   산정 기준 보기
                 </summary>
-                <div className="mt-1 space-y-0.5 text-[10px] text-slate-400">
+                <div className="mt-1 space-y-0.5 text-xs text-slate-400">
                   <p>· 소득인정액 = 월 소득평가액 + 재산의 월 소득환산액</p>
                   <p>
                     · 월 소득평가액 = {"{"}0.7 × (근로소득 - 116만원){"}"} +
@@ -425,7 +438,7 @@ export function PensionCalculator() {
 
             {/* 거주지 */}
             <div>
-              <label className="mb-2 block text-[12px] font-medium text-slate-600">
+              <label className="mb-2 block text-sm font-medium text-slate-600">
                 거주지 <span className="text-red-400">*</span>
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -439,17 +452,17 @@ export function PensionCalculator() {
                   <button
                     key={r.value}
                     onClick={() => update("region", r.value)}
-                    className={`rounded-lg border px-2 py-2.5 text-center transition-all ${
+                    className={`rounded-lg border px-2 py-3.5 text-center transition-all ${
                       form.region === r.value
                         ? "border-slate-900 bg-slate-900 text-white"
                         : "border-slate-200 text-slate-600 hover:border-slate-300"
                     }`}
                   >
-                    <span className="block text-[12px] font-medium">
+                    <span className="block text-sm font-medium">
                       {r.label}
                     </span>
                     <span
-                      className={`mt-0.5 block text-[10px] ${
+                      className={`mt-0.5 block text-xs ${
                         form.region === r.value
                           ? "text-slate-300"
                           : "text-slate-400"
@@ -461,10 +474,10 @@ export function PensionCalculator() {
                 ))}
               </div>
               <details className="mt-1.5">
-                <summary className="cursor-pointer text-[10px] font-medium text-slate-400 hover:text-slate-500">
+                <summary className="cursor-pointer text-xs font-medium text-slate-400 hover:text-slate-500">
                   기본공제 재산액 보기
                 </summary>
-                <div className="mt-1 text-[10px] text-slate-400">
+                <div className="mt-1 text-xs text-slate-400">
                   <p>· 대도시 1억 3,500만원, 중소도시 8,500만원, 농어촌 7,250만원</p>
                   <p>
                     · 대도시: 특별시, 광역시의 &quot;구&quot;(도농복합군 포함), 특례시
@@ -482,28 +495,88 @@ export function PensionCalculator() {
         {/* 02. 소득정보 */}
         <div className="rounded-xl border border-slate-100 bg-white p-5">
           <div className="mb-4 flex items-center gap-2">
-            <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-900 text-[10px] font-bold text-white">
+            <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-900 text-xs font-bold text-white">
               02
             </span>
-            <h3 className="text-[14px] font-semibold text-slate-800">
+            <h3 className="text-base font-semibold text-slate-800">
               소득정보
             </h3>
           </div>
 
           <div className="space-y-4">
-            <Field
-              label="근로소득"
-              value={form.laborIncome}
-              onChange={(v) => update("laborIncome", v)}
-              suffix="만원/월"
-              help="상시근로소득 및 일용근로소득 (공공일자리 소득 제외)"
-              details={[
-                "상시근로소득: 3개월 이상 계속 고용되어 월정액 급여를 지급 받는 자의 근로소득",
-                "일용근로소득: 3개월 미만 (건설공사·하역작업 종사자 제외)",
-                "공공일자리 소득(노인일자리사업, 자활근로, 공공근로 등)은 제외",
-                "상시근로소득 반영액 = (근로소득 - 116만원) × 0.7",
-              ]}
-            />
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-600">
+                근로소득
+              </label>
+              {form.household === "couple" ? (
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        inputMode="numeric"
+                        placeholder="0"
+                        value={form.laborIncome}
+                        onChange={(e) => update("laborIncome", e.target.value)}
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-3.5 pr-16 text-right text-base font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+                        만원/월
+                      </span>
+                    </div>
+                    <span className="mt-0.5 block text-xs text-slate-400">
+                      본인
+                    </span>
+                  </div>
+                  <div>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        inputMode="numeric"
+                        placeholder="0"
+                        value={form.laborIncomeSpouse}
+                        onChange={(e) => update("laborIncomeSpouse", e.target.value)}
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-3.5 pr-16 text-right text-base font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+                        만원/월
+                      </span>
+                    </div>
+                    <span className="mt-0.5 block text-xs text-slate-400">
+                      배우자
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="relative">
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    placeholder="0"
+                    value={form.laborIncome}
+                    onChange={(e) => update("laborIncome", e.target.value)}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-3.5 pr-16 text-right text-base font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+                    만원/월
+                  </span>
+                </div>
+              )}
+              <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                상시근로소득 및 일용근로소득 (공공일자리 소득 제외)
+              </p>
+              <details className="mt-1">
+                <summary className="cursor-pointer text-xs font-medium text-slate-400 hover:text-slate-500">
+                  자세히 보기
+                </summary>
+                <ul className="mt-1 space-y-0.5 text-xs leading-relaxed text-slate-400">
+                  <li>· 상시근로소득: 3개월 이상 계속 고용되어 월정액 급여를 지급 받는 자의 근로소득</li>
+                  <li>· 일용근로소득: 3개월 미만 (건설공사·하역작업 종사자 제외)</li>
+                  <li>· 공공일자리 소득(노인일자리사업, 자활근로, 공공근로 등)은 제외</li>
+                  <li>· 반영액 = 1인당 (근로소득 - 116만원) × 0.7</li>
+                </ul>
+              </details>
+            </div>
 
             <Field
               label="사업소득"
@@ -538,10 +611,10 @@ export function PensionCalculator() {
 
             {/* 무료임차소득 */}
             <div>
-              <label className="mb-1.5 block text-[12px] font-medium text-slate-600">
+              <label className="mb-1.5 block text-sm font-medium text-slate-600">
                 무료임차소득
               </label>
-              <p className="mb-2 text-[10px] text-slate-400">
+              <p className="mb-2 text-xs text-slate-400">
                 자녀소유 주택에 거주 시 시가표준액 입력 (6억 이상만 해당)
               </p>
               <div className="grid grid-cols-2 gap-2">
@@ -554,12 +627,12 @@ export function PensionCalculator() {
                     onChange={(e) =>
                       update("freeRentShareRatio", e.target.value)
                     }
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 pr-8 text-right text-[14px] font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-3.5 pr-8 text-right text-base font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400">
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
                     %
                   </span>
-                  <span className="mt-0.5 block text-[10px] text-slate-400">
+                  <span className="mt-0.5 block text-xs text-slate-400">
                     지분율
                   </span>
                 </div>
@@ -570,12 +643,12 @@ export function PensionCalculator() {
                     placeholder="0"
                     value={form.freeRentValue}
                     onChange={(e) => update("freeRentValue", e.target.value)}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 pr-12 text-right text-[14px] font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-3.5 pr-12 text-right text-base font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400">
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
                     만원
                   </span>
-                  <span className="mt-0.5 block text-[10px] text-slate-400">
+                  <span className="mt-0.5 block text-xs text-slate-400">
                     시가표준액
                   </span>
                 </div>
@@ -588,10 +661,10 @@ export function PensionCalculator() {
       {/* ── 03. 재산정보 (전체 너비, 내부 2단) ─────── */}
       <div className="rounded-xl border border-slate-100 bg-white p-5">
         <div className="mb-4 flex items-center gap-2">
-          <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-900 text-[10px] font-bold text-white">
+          <span className="flex h-5 w-5 items-center justify-center rounded-md bg-slate-900 text-xs font-bold text-white">
             03
           </span>
-          <h3 className="text-[14px] font-semibold text-slate-800">
+          <h3 className="text-base font-semibold text-slate-800">
             재산정보
           </h3>
         </div>
@@ -599,7 +672,7 @@ export function PensionCalculator() {
         <div className="grid gap-6 lg:grid-cols-2">
           {/* 좌측: 일반재산 */}
           <div className="space-y-4">
-            <h4 className="text-[12px] font-semibold tracking-wide text-slate-400">
+            <h4 className="text-sm font-semibold tracking-wide text-slate-400">
               일반재산
             </h4>
 
@@ -643,7 +716,7 @@ export function PensionCalculator() {
 
             {/* 자동차 */}
             <div className="border-t border-slate-100 pt-4">
-              <h4 className="mb-3 text-[12px] font-semibold tracking-wide text-slate-400">
+              <h4 className="mb-3 text-sm font-semibold tracking-wide text-slate-400">
                 자동차
               </h4>
 
@@ -654,7 +727,7 @@ export function PensionCalculator() {
                   onChange={(e) => update("carForBusiness", e.target.checked)}
                   className="h-4 w-4 rounded border-slate-300 accent-slate-900"
                 />
-                <span className="text-[12px] font-medium text-slate-600">
+                <span className="text-sm font-medium text-slate-600">
                   생업용 자동차
                 </span>
               </label>
@@ -675,10 +748,10 @@ export function PensionCalculator() {
               </div>
 
               <details className="mt-1.5">
-                <summary className="cursor-pointer text-[10px] font-medium text-slate-400 hover:text-slate-500">
+                <summary className="cursor-pointer text-xs font-medium text-slate-400 hover:text-slate-500">
                   자동차 산정 기준 보기
                 </summary>
-                <div className="mt-1 space-y-0.5 text-[10px] text-slate-400">
+                <div className="mt-1 space-y-0.5 text-xs text-slate-400">
                   <p>· 생업용 자동차: 재산산정 제외 (1대 한정)</p>
                   <p>
                     · 4,000만원 이상 고급자동차: 월 소득환산율 100% 적용 (P값)
@@ -693,7 +766,7 @@ export function PensionCalculator() {
 
           {/* 우측: 금융재산 + 부채 */}
           <div className="space-y-4">
-            <h4 className="text-[12px] font-semibold tracking-wide text-slate-400">
+            <h4 className="text-sm font-semibold tracking-wide text-slate-400">
               금융재산
             </h4>
             <Field
@@ -708,7 +781,7 @@ export function PensionCalculator() {
             />
 
             <div className="border-t border-slate-100 pt-4">
-              <h4 className="mb-3 text-[12px] font-semibold tracking-wide text-slate-400">
+              <h4 className="mb-3 text-sm font-semibold tracking-wide text-slate-400">
                 부채
               </h4>
 
@@ -721,10 +794,10 @@ export function PensionCalculator() {
                 />
 
                 <div>
-                  <label className="mb-1.5 block text-[12px] font-medium text-slate-600">
+                  <label className="mb-1.5 block text-sm font-medium text-slate-600">
                     임대보증금
                   </label>
-                  <p className="mb-2 text-[10px] text-slate-400">
+                  <p className="mb-2 text-xs text-slate-400">
                     주택 등 시가표준액의 50% 범위 내에서 인정
                   </p>
                   <div className="grid grid-cols-2 gap-2">
@@ -738,13 +811,13 @@ export function PensionCalculator() {
                           onChange={(e) =>
                             update("rentalDepositHouseValue", e.target.value)
                           }
-                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 pr-12 text-right text-[14px] font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
+                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-3.5 pr-12 text-right text-base font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
                         />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400">
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
                           만원
                         </span>
                       </div>
-                      <span className="mt-0.5 block text-[10px] text-slate-400">
+                      <span className="mt-0.5 block text-xs text-slate-400">
                         주택 등 시가표준액
                       </span>
                     </div>
@@ -758,22 +831,22 @@ export function PensionCalculator() {
                           onChange={(e) =>
                             update("rentalDepositAmount", e.target.value)
                           }
-                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 pr-12 text-right text-[14px] font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
+                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-3.5 pr-12 text-right text-base font-medium text-slate-900 transition-colors placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
                         />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400">
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
                           만원
                         </span>
                       </div>
-                      <span className="mt-0.5 block text-[10px] text-slate-400">
+                      <span className="mt-0.5 block text-xs text-slate-400">
                         임대보증금
                       </span>
                     </div>
                   </div>
                   <details className="mt-1.5">
-                    <summary className="cursor-pointer text-[10px] font-medium text-slate-400 hover:text-slate-500">
+                    <summary className="cursor-pointer text-xs font-medium text-slate-400 hover:text-slate-500">
                       자세히 보기
                     </summary>
-                    <div className="mt-1 text-[10px] text-slate-400">
+                    <div className="mt-1 text-xs text-slate-400">
                       <p>
                         · 전세권 설정 또는 확정일자가 있는 임대보증금 중 주택 등
                         시가표준액의 50% 범위 내에서 인정
@@ -794,14 +867,14 @@ export function PensionCalculator() {
       <div className="flex gap-2">
         <button
           onClick={reset}
-          className="flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-5 py-3 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50"
+          className="flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-5 py-3 text-[15px] font-medium text-slate-500 transition-colors hover:bg-slate-50"
         >
           <RotateCcw className="h-3.5 w-3.5" />
           초기화
         </button>
         <button
           onClick={calculate}
-          className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-slate-900 py-3 text-[14px] font-semibold text-white transition-colors hover:bg-slate-800"
+          className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-slate-900 py-3 text-base font-semibold text-white transition-colors hover:bg-slate-800"
         >
           <Calculator className="h-4 w-4" />
           계산하기
@@ -829,7 +902,7 @@ export function PensionCalculator() {
               )}
             </div>
             <h3
-              className={`text-[16px] font-bold ${
+              className={`text-lg font-bold ${
                 result.isEligible ? "text-emerald-800" : "text-slate-500"
               }`}
             >
@@ -842,7 +915,7 @@ export function PensionCalculator() {
                 월 {result.estimatedAmount.toLocaleString()}원
               </p>
             )}
-            <div className="mt-3 inline-flex items-center gap-4 text-[13px]">
+            <div className="mt-3 inline-flex items-center gap-4 text-[15px]">
               <span className="text-slate-400">
                 소득인정액{" "}
                 <strong className="text-slate-700">
@@ -863,7 +936,7 @@ export function PensionCalculator() {
           <div className="rounded-xl border border-slate-100 bg-white">
             <button
               onClick={() => setShowDetail(!showDetail)}
-              className="flex w-full items-center justify-between px-5 py-3.5 text-[13px] font-semibold text-slate-700"
+              className="flex w-full items-center justify-between px-5 py-3.5 text-[15px] font-semibold text-slate-700"
             >
               상세 산정 내역
               <ChevronDown
@@ -876,18 +949,18 @@ export function PensionCalculator() {
                 <div className="grid gap-4 lg:grid-cols-2">
                   {/* 소득평가액 */}
                   <div>
-                    <h5 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                    <h5 className="mb-2 text-[15px] font-semibold uppercase tracking-wider text-slate-400">
                       월 소득평가액
                     </h5>
                     <div className="space-y-1.5">
-                      <div className="flex justify-between text-[12px]">
+                      <div className="flex justify-between text-sm">
                         <span className="text-slate-400">근로소득 반영액</span>
                         <span className="font-medium text-slate-700">
                           {fmtKRW(result.laborIncomeReflected)}
                         </span>
                       </div>
                       {result.freeRentIncomeCalc > 0 && (
-                        <div className="flex justify-between text-[12px]">
+                        <div className="flex justify-between text-sm">
                           <span className="text-slate-400">
                             무료임차소득
                           </span>
@@ -896,13 +969,13 @@ export function PensionCalculator() {
                           </span>
                         </div>
                       )}
-                      <div className="flex justify-between text-[12px]">
+                      <div className="flex justify-between text-sm">
                         <span className="text-slate-400">기타소득 합계</span>
                         <span className="font-medium text-slate-700">
                           {fmtKRW(result.otherIncome)}
                         </span>
                       </div>
-                      <div className="flex justify-between border-t border-slate-100 pt-1.5 text-[12px]">
+                      <div className="flex justify-between border-t border-slate-100 pt-1.5 text-sm">
                         <span className="font-medium text-slate-600">
                           소득평가액 합계
                         </span>
@@ -915,17 +988,17 @@ export function PensionCalculator() {
 
                   {/* 재산 소득환산액 */}
                   <div>
-                    <h5 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                    <h5 className="mb-2 text-[15px] font-semibold uppercase tracking-wider text-slate-400">
                       재산의 월 소득환산액
                     </h5>
                     <div className="space-y-1.5">
-                      <div className="flex justify-between text-[12px]">
+                      <div className="flex justify-between text-sm">
                         <span className="text-slate-400">일반재산 합계</span>
                         <span className="font-medium text-slate-700">
                           {fmtKRW(result.generalProperty)}
                         </span>
                       </div>
-                      <div className="flex justify-between text-[12px]">
+                      <div className="flex justify-between text-sm">
                         <span className="text-slate-400">
                           기본재산 공제
                         </span>
@@ -933,7 +1006,7 @@ export function PensionCalculator() {
                           -{fmtKRW(BASE_PROPERTY_DEDUCTION[form.region])}
                         </span>
                       </div>
-                      <div className="flex justify-between text-[12px]">
+                      <div className="flex justify-between text-sm">
                         <span className="text-slate-400">
                           금융재산 (공제 후)
                         </span>
@@ -941,20 +1014,20 @@ export function PensionCalculator() {
                           {fmtKRW(result.financialAfterDeduction)}
                         </span>
                       </div>
-                      <div className="flex justify-between text-[12px]">
+                      <div className="flex justify-between text-sm">
                         <span className="text-slate-400">부채 합계</span>
                         <span className="font-medium text-slate-700">
                           -{fmtKRW(result.totalDebt)}
                         </span>
                       </div>
-                      <div className="flex justify-between text-[12px]">
+                      <div className="flex justify-between text-sm">
                         <span className="text-slate-400">순재산</span>
                         <span className="font-medium text-slate-700">
                           {fmtKRW(result.netProperty)}
                         </span>
                       </div>
                       {result.pValue > 0 && (
-                        <div className="flex justify-between text-[12px]">
+                        <div className="flex justify-between text-sm">
                           <span className="text-slate-400">
                             P값 (고급차+회원권)
                           </span>
@@ -963,7 +1036,7 @@ export function PensionCalculator() {
                           </span>
                         </div>
                       )}
-                      <div className="flex justify-between border-t border-slate-100 pt-1.5 text-[12px]">
+                      <div className="flex justify-between border-t border-slate-100 pt-1.5 text-sm">
                         <span className="font-medium text-slate-600">
                           재산 소득환산액 합계
                         </span>
@@ -977,7 +1050,7 @@ export function PensionCalculator() {
 
                 {/* 최종 */}
                 <div className="mt-4 rounded-lg bg-slate-50 p-3">
-                  <div className="flex justify-between text-[13px]">
+                  <div className="flex justify-between text-[15px]">
                     <span className="font-semibold text-slate-700">
                       소득인정액
                     </span>
@@ -985,7 +1058,7 @@ export function PensionCalculator() {
                       {fmtKRW(result.incomeRecognition)}
                     </span>
                   </div>
-                  <div className="mt-1 text-[12px] text-slate-400">
+                  <div className="mt-1 text-sm text-slate-400">
                     = 소득평가액 + 재산 소득환산액
                   </div>
                 </div>
@@ -995,7 +1068,7 @@ export function PensionCalculator() {
 
           {/* 안내 */}
           <div className="rounded-lg border border-slate-100 bg-slate-50 px-4 py-3">
-            <p className="text-[11px] leading-relaxed text-slate-500">
+            <p className="text-[15px] leading-relaxed text-slate-500">
               본 계산 결과는 참고용이며, 실제 수급 여부는 국민연금공단의
               심사를 통해 결정됩니다. 정확한 확인은{" "}
               <strong className="text-slate-600">
