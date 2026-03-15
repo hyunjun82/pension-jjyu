@@ -253,11 +253,23 @@ export default async function ArticlePage({ params }: Props) {
           <ArrowLeft className="h-4 w-4 rotate-180 text-blue-400 transition-transform group-hover:translate-x-1" />
         </Link>
 
+        {/* ── 서론 아래 본문 광고 1 ─────────────────── */}
+        <div className="mb-8">
+          <ins
+            className="adsbygoogle"
+            style={{ display: "block" }}
+            data-ad-client="ca-pub-2442517902625121"
+            data-ad-slot=""
+            data-ad-format="auto"
+            data-full-width-responsive="true"
+          />
+        </div>
+
         {/* ── Two-column layout ───────────────────── */}
         <div className="flex gap-8">
           {/* Main content */}
           <main className="min-w-0 flex-1">
-            {/* Article sections with CTA inserted in the middle */}
+            {/* Article sections with ad inserted in the middle */}
             <article>
               {article.sections.map((section, idx) => {
                 const { icon: SectionIcon, color } = getSectionIcon(
@@ -286,21 +298,17 @@ export default async function ArticlePage({ params }: Props) {
                       )}
                     </section>
 
-                    {/* 모의계산 CTA — 본문 중간에 삽입 */}
+                    {/* 본문 중간 광고 2 */}
                     {idx === ctaInsertIndex && (
                       <div className="mb-8">
-                        <Link
-                          href="/#calculator"
-                          className="group block w-full rounded-xl bg-blue-600 px-6 py-5 text-center text-white shadow-lg transition-all duration-200 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-xl"
-                        >
-                          <span className="flex items-center justify-center gap-2 text-lg font-bold">
-                            <Calculator className="h-5 w-5" />
-                            내 기초연금 수급액 계산해보기
-                          </span>
-                          <span className="block text-sm text-blue-100 mt-1">
-                            소득·재산 정보 입력으로 예상 수급액 즉시 확인 →
-                          </span>
-                        </Link>
+                        <ins
+                          className="adsbygoogle"
+                          style={{ display: "block" }}
+                          data-ad-client="ca-pub-2442517902625121"
+                          data-ad-slot=""
+                          data-ad-format="auto"
+                          data-full-width-responsive="true"
+                        />
                       </div>
                     )}
                   </Fragment>

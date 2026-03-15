@@ -65,6 +65,18 @@ export function CategorySidebar({
             </Link>
           </div>
         </div>
+
+        {/* 사이드바 광고 */}
+        <div className="mt-4">
+          <ins
+            className="adsbygoogle"
+            style={{ display: "block" }}
+            data-ad-client="ca-pub-2442517902625121"
+            data-ad-slot=""
+            data-ad-format="auto"
+            data-full-width-responsive="true"
+          />
+        </div>
       </div>
     </aside>
   );
