@@ -1,3 +1,5 @@
+export const dynamic = 'force-static';
+
 import { articles } from "@/data/articles";
 
 const BASE_URL = "https://pension.jjyu.co.kr";
